@@ -26,3 +26,12 @@ def dmin(X, Y):
     m = np.vstack((m, np.average(w9, axis=0)))
 
     # Calcul des distances minimales de chaque image par rapport aux baricentres
+    classes = []
+    for i in range(X.shape[0]):
+        alldist = []
+        for j in range(m.shape[0]):
+            alldist.append(np.linalg.norm(X[i,:] - m[j,:]))
+        classes.append(np.argmin(alldist))
+    res = np.array(classes == Y)
+    print("Taux de reussite : ")
+    print(np.array(X[res == False]).shape[0] / X.shape[0] * 100)
