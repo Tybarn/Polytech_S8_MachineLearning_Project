@@ -32,8 +32,8 @@ def dmin(X, Y):
         for j in range(m.shape[0]):
             alldist.append(np.linalg.norm(X[i,:] - m[j,:]))
         classes.append(np.argmin(alldist))
-    res = np.array(classes == Y)
-    print("Taux d'erreur : ")
-    print(np.array(X[res == False]).shape[0] / X.shape[0] * 100)
+    #res = np.array(classes == Y)
+    #print("Taux d'erreur : ")
+    #print(np.array(X[res == False]).shape[0] / X.shape[0] * 100)
 
-    return res
+    return classes
