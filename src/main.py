@@ -76,11 +76,11 @@ calcul_tx_erreur(X_dev, dmin_res, Y_dev)
 
 # ------------------------ Question 2 : PCA + DMIN ------------------------
 print(" -------------------- PCA + DMIN ---------------------\n")
-start_time = time.time()
 
 # Modification des donnees avec la pca
-obj_pca = PCA(n_components=20, svd_solver='full') # Instance de PCA creee - Baisse de precision a partir de 182
+obj_pca = PCA(n_components=784) # Instance de PCA creee - Baisse de precision a partir de 182
 obj_pca.fit(X_trn)
+start_time = time.time()
 pca_data = obj_pca.transform(X_dev)
 
 # Calcul des donnees modifiees avec dmin
@@ -92,13 +92,12 @@ calcul_tx_erreur(X_dev, dmin_res, Y_dev)
 
 
 # ------------------------ Question 3 : SVM ------------------------
-print(" -------------------- SVM ---------------------\n")
-start_time = time.time()
+print(" -------------------- SVC ---------------------\n")
 
 obj_svc = SVC(gamma='scale')
 obj_svc.fit(X_trn, Y_trn)
+start_time = time.time()
 svc_res = obj_svc.predict(X_dev)
-print(obj_svc.score(X_dev, Y_dev))
 
 end_time = time.time()
 print("Temps d'execution : %.2f sec" % (end_time - start_time))
@@ -107,10 +106,10 @@ calcul_tx_erreur(X_dev, svc_res, Y_dev)
 
 # Question 3 : Nearest Neighbors --------------------------------
 print(" -------------------- Nearest Neighbors --------------------\n")
-start_time = time.time()
 
 obj_knn = KNeighborsClassifier(n_neighbors=5)
 obj_knn.fit(X_trn, Y_trn)
+start_time = time.time()
 knn_res = obj_knn.predict(X_dev)
 
 end_time = time.time()
@@ -119,5 +118,26 @@ calcul_tx_erreur(X_dev, knn_res, Y_dev)
 
 
 # Question 3 : PCA + classifieurs autres que DMIN ---------------
+print(" -------------------- PCA + SVC --------------------\n")
+
+# PCA faite en Q2, on reutilise X_dev transforme
+obj_svc.fit(obj_pca.transform(X_trn), Y_trn)
+start_time = time.time()
+svc_res = obj_svc.predict(pca_data)
+
+end_time = time.time()
+print("Temps d'execution : %.2f sec" % (end_time - start_time))
+calcul_tx_erreur(X_dev, svc_res, Y_dev)
+
+print(" -------------------- PCA + KNN --------------------\n")
+
+# PCA faite en Q2, on reutilise X_dev transforme
+obj_knn.fit(obj_pca.transform(X_trn), Y_trn)
+start_time = time.time()
+knn_res = obj_knn.predict(pca_data)
+
+end_time = time.time()
+print("Temps d'execution : %.2f sec" % (end_time - start_time))
+calcul_tx_erreur(X_dev, knn_res, Y_dev)
 
 # Question 3 : Matrice de confusion -----------------------------
