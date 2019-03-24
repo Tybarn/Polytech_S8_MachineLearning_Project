@@ -84,7 +84,7 @@ calcul_tx_erreur(X_dev, dmin_res, Y_dev)
 print(" -------------------- PCA + DMIN ---------------------\n")
 
 # Creation et entrainement de la pca
-obj_pca = PCA(n_components=784)
+obj_pca = PCA(n_components=182)
 obj_pca.fit(X_trn)
 
 # Estimation
@@ -134,7 +134,10 @@ calcul_tx_erreur(X_dev, knn_res, Y_dev)
 
 print(" -------------------- PCA + SVC --------------------\n")
 
-# PCA faite en Q2, entrainement de SVC par rapport sur des donnees d'entrainement transformees par pca
+# Creation et entrainement de la pca
+obj_pca = PCA(n_components=300)
+obj_pca.fit(X_trn)
+# Entrainement de SVC par rapport sur des donnees d'entrainement transformees par pca
 obj_svc.fit(obj_pca.transform(X_trn), Y_trn)
 
 # Estimation
@@ -148,7 +151,10 @@ calcul_tx_erreur(X_dev, pca_svc_res, Y_dev)
 
 print(" -------------------- PCA + KNN --------------------\n")
 
-# PCA faite en Q2, entrainement de neighbors par rapport sur des donnees d'entrainement transformees par pca
+# Creation et entrainement de la pca
+obj_pca = PCA(n_components=120)
+obj_pca.fit(X_trn)
+# Entrainement de neighbors par rapport sur des donnees d'entrainement transformees par pca
 obj_knn.fit(obj_pca.transform(X_trn), Y_trn)
 
 # Estimation
@@ -161,3 +167,11 @@ calcul_tx_erreur(X_dev, pca_knn_res, Y_dev)
 
 
 # ----------------- Question 3 : Matrice de confusion -------------------
+
+svc_cf_matrix = confusion_matrix(Y_dev, svc_res)
+pca_svc_cf_matrix = confusion_matrix(Y_dev, pca_svc_res)
+pca_knn_cf_matrix = confusion_matrix(Y_dev, pca_knn_res)
+
+np.savetxt("confusion_matrix_svc.csv", svc_cf_matrix, delimiter=",", newline="\n", fmt="%.2f")
+np.savetxt("confusion_matrix_pca_svc.csv", pca_svc_cf_matrix, delimiter=",", newline="\n", fmt="%.2f")
+np.savetxt("confusion_matrix_pca_knn.csv", pca_knn_cf_matrix, delimiter=",", newline="\n", fmt="%.2f")
