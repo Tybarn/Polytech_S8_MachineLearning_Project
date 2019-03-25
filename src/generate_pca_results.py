@@ -1,8 +1,12 @@
 import time
 import numpy as np
 from sklearn.decomposition import PCA
-from sklearn.svm import SVC, LinearSVC
+from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
+
+# ///////////////////////////////////////////////////////////////////////////////////////////////// #
+# -------------------------------------------- FONCTIONS ------------------------------------------ #
+# ///////////////////////////////////////////////////////////////////////////////////////////////// #
 
 def calcul_tx_erreur(data, res_obt, res_waited):
     diff_res = np.array(res_obt == res_waited)
@@ -45,46 +49,63 @@ def dmin(data, res_wished):
 
     return classes
 
+# //////////////////////////////////////////////////////////////////////////////////////////// #
+# -------------------------------------------- MAIN ------------------------------------------ #
+# //////////////////////////////////////////////////////////////////////////////////////////// #
+
 # Chargement des donnees d'entrainement
-X_trn = np.load('../data/trn_img.npy')
-Y_trn = np.load('../data/trn_lbl.npy')
+X_trn = np.load('../trn_img.npy')
+Y_trn = np.load('../trn_lbl.npy')
 
 # Chargement des donnees a calculer
-X_dev = np.load('../data/dev_img.npy')
-Y_dev = np.load('../data/dev_lbl.npy')
+X_dev = np.load('../dev_img.npy')
+Y_dev = np.load('../dev_lbl.npy')
 
 obj_svc = SVC(gamma='scale')
 obj_knn = KNeighborsClassifier(n_neighbors=5)
 
 all_res = np.empty((0,3), dtype=float)
-i=1
+all_times = np.empty((0,3), dtype=float)
 
+i = 1
 while i <= 784:
     print(i)
+    # Init
     current_res = np.empty((1,3))
+    current_times = np.empty((1,3))
     obj_pca = PCA(n_components=i, svd_solver="full")
     obj_pca.fit(X_trn)
 
+    # Entrainement
     obj_svc.fit(obj_pca.transform(X_trn), Y_trn)
     obj_knn.fit(obj_pca.transform(X_trn), Y_trn)
 
+    # Distance minimal
     start_time = time.time()
     dmin_res = dmin(obj_pca.transform(X_dev), Y_dev)
     end_time = time.time()
     current_res[0,0] = (end_time - start_time)
+    current_times[0,0] = calcul_tx_erreur(X_dev, dmin_res, Y_dev)
 
+    # SVC
     start_time = time.time()
     svc_res = obj_svc.predict(obj_pca.transform(X_dev))
     end_time = time.time()
     current_res[0,1] = (end_time - start_time)
+    current_times[0,1] = calcul_tx_erreur(X_dev, svc_res, Y_dev)
 
+    # Nearest Neighbors
     start_time = time.time()
     knn_res = obj_knn.predict(obj_pca.transform(X_dev))
     end_time = time.time()
     current_res[0,2] = (end_time - start_time)
+    current_times[0,2] = calcul_tx_erreur(X_dev, knn_res, Y_dev)
 
+    # Ajout aux matrices contenant tous les resultats
     print(current_res)
+    print(current_times)
     all_res = np.append(all_res, current_res, axis=0)
+    all_times = np.append(all_times, current_times, axis=0)
 
     if i == 1:
         i = i + 9
@@ -93,4 +114,6 @@ while i <= 784:
     else:
         i = i + 10
 
-np.savetxt("machinelearning_time.csv", all_res, fmt="%.2f", delimiter=",", newline="\n")
+# Sauvegarde des resultats dans les fichiers csv
+np.savetxt("pca_time.csv", all_times, fmt="%.2f", delimiter=",", newline="\n")
+np.savetxt("pca_results.csv", all_res, fmt="%.2f", delimiter=",", newline="\n")
