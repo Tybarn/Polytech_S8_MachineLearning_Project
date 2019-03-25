@@ -55,15 +55,15 @@ def dmin(data, res_wished):
 # //////////////////////////////////////////////////////////////////////////////////////////// #
 
 # Chargement des donnees d'entrainement
-X_trn = np.load('../data/trn_img.npy')
-Y_trn = np.load('../data/trn_lbl.npy')
+X_trn = np.load('../trn_img.npy')
+Y_trn = np.load('../trn_lbl.npy')
 
 # Chargement des donnees a calculer
-X_dev = np.load('../data/dev_img.npy')
-Y_dev = np.load('../data/dev_lbl.npy')
+X_dev = np.load('../dev_img.npy')
+Y_dev = np.load('../dev_lbl.npy')
 
 # Chargement des donnees a estimer pour la note
-X_tst = np.load('../data/tst_img.npy')
+X_tst = np.load('../tst_img.npy')
 
 
 # ------------------------ Question 1 : DMIN ------------------------
@@ -175,3 +175,19 @@ pca_knn_cf_matrix = confusion_matrix(Y_dev, pca_knn_res)
 np.savetxt("confusion_matrix_svc.csv", svc_cf_matrix, delimiter=",", newline="\n", fmt="%.2f")
 np.savetxt("confusion_matrix_pca_svc.csv", pca_svc_cf_matrix, delimiter=",", newline="\n", fmt="%.2f")
 np.savetxt("confusion_matrix_pca_knn.csv", pca_knn_cf_matrix, delimiter=",", newline="\n", fmt="%.2f")
+
+
+# ----------------- test.npy -------------------
+
+# L'estimateur choisi est la SVC avec PCA
+
+# Creation et entrainement de la pca
+obj_pca = PCA(n_components=300)
+obj_pca.fit(X_trn)
+
+# Estimation
+start_time = time.time()
+pca_svc_res = np.array(obj_svc.predict(obj_pca.transform(X_tst)))
+end_time = time.time()
+
+np.save('test.npy', pca_svc_res)
